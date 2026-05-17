@@ -79,6 +79,14 @@
         margin-bottom: 1.5rem;
       }
 
+      .hero-container {
+        margin: 0;
+        clip-path: polygon(0 0, 90% 0, 75% 100%, 0 100%);
+        height: 50vh;
+        background-size: cover;
+        background-position: center;
+      }
+
       .code {
         background: var(--text);
         color: var(--bg);
@@ -120,7 +128,7 @@
         background: var(--accent2);
         color: white;
         padding: 5rem 3rem 7rem;
-        margin: 0 -2rem 4rem;
+        margin: 0;
         /* polygon: top-left, top-right, bottom-right, bottom-left */
         clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
         position: relative;
@@ -394,7 +402,12 @@
       Cut elements into any shape. The browser clips everything outside. No
       Photoshop, no SVG files — pure CSS.
     </p>
-
+    <div
+      class="hero-container"
+      style="
+        background-image: url(https://images.unsplash.com/photo-1778003586047-69c68f764af5?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D);
+      "
+    ></div>
     <!-- DIAGONAL SECTION -->
     <div class="diagonal-section">
       <h2>BREAK THE<br />RECTANGLE</h2>
