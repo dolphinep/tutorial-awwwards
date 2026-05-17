@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task 05 — CSS Masks & Blend Modes</title>
+<style>
+  /*
+  ============================================================
+  LESSON: CSS MASKS & MIX-BLEND-MODE
+  ============================================================
+
+  MASKS: Control what parts of an element are visible.
+  - mask-image: uses alpha channel to show/hide pixels
+  - Gradients make great masks (fade to transparent)
+  - SVG shapes work as masks too
+  - Unlike clip-path (hard edges), masks can be soft
+
+  BLEND MODES: Control how layers of color interact.
+  - mix-blend-mode: how an element blends with WHAT'S BELOW IT
+  - background-blend-mode: how bg layers blend with each other
+  - Same blending math as Photoshop layers
+
+  KEY BLEND MODES FOR CREATIVE DEV:
+  - multiply: dark areas compound (white = transparent)
+  - screen:   light areas compound (black = transparent)
+  - overlay:  contrast boost
+  - difference: inverts based on color difference
+  - exclusion: softer version of difference
+  - color:    apply hue/sat, keep luminosity
+  ============================================================
+  */
+
+  :root {
+    --bg:      #0c0c0c;
+    --surface: #141414;
+    --border:  #222;
+    --text:    #f0ede8;
+    --muted:   #555;
+    --accent:  #f5c842;
+    --accent2: #e84855;
+
+    --font-display: 'Anton', Impact, sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+    --font-mono: 'SF Mono', monospace;
+  }
+
+  @import url('https://fonts.googleapis.com/css2?family=Anton&family=DM+Sans:wght@300;400&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--text);
+    padding: 4rem 2rem;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .lesson-tag {
+    font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--accent); border: 1px solid var(--accent);
+    display: inline-block; padding: 0.2rem 0.6rem; margin-bottom: 3rem;
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-size: clamp(3.5rem, 9vw, 7rem);
+    line-height: 0.9;
+    letter-spacing: 0.03em;
+    margin-bottom: 0.5rem;
+  }
+
+  h1 .red { color: var(--accent2); }
+
+  .intro { color: var(--muted); font-size: 1rem; max-width: 500px; line-height: 1.7; margin-bottom: 4rem; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 4rem 0; }
+  .section-label { font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 1.5rem; }
+
+  .code {
+    background: var(--surface); border-left: 2px solid var(--accent);
+    padding: 1.5rem; font-family: var(--font-mono);
+    font-size: 0.8rem; line-height: 1.8; color: var(--muted); margin: 1.5rem 0;
+    overflow-x: auto;
+  }
+  .code .hl { color: var(--accent); }
+  .code .cm { color: #333; }
+
+
+  /*
+  ============================================================
+  MASK DEMOS
+  ============================================================
+  */
+
+  /* Fade out with gradient mask */
+  .mask-fade {
+    height: 180px;
+    background: linear-gradient(135deg, #f5c842 0%, #e84855 50%, #4fc3f7 100%);
+    border-radius: 4px;
+    margin-bottom: 3rem;
+
+    /* Mask: visible on left, fades to invisible on right */
+    mask-image: linear-gradient(to right, black 40%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, black 40%, transparent 100%);
+
+    display: flex;
+    align-items: center;
+    padding: 0 2rem;
+  }
+
+  .mask-fade p {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    letter-spacing: 0.05em;
+    color: rgba(0,0,0,0.8);
+  }
+
+
+  /* Text with image showing through */
+  .mask-text-demo {
+    position: relative;
+    margin-bottom: 3rem;
+    height: 200px;
+    overflow: hidden;
+  }
+
+  .mask-text-bg {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #f5c842, #e84855, #4fc3f7, #c8f557);
+    background-size: 400% 400%;
+    animation: gradient-shift 4s ease infinite;
+  }
+
+  @keyframes gradient-shift {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  .mask-text-overlay {
+    position: absolute;
+    inset: 0;
+    font-family: var(--font-display);
+    font-size: clamp(4rem, 12vw, 9rem);
+    line-height: 1;
+    letter-spacing: 0.02em;
+    color: transparent;
+    /* Key technique: the bg is visible ONLY through the text shape */
+    background: var(--bg);
+    -webkit-background-clip: text;
+    background-clip: text;
+    display: flex;
+    align-items: center;
+    padding: 0 1rem;
+  }
+
+
+  /* Vignette mask */
+  .mask-vignette {
+    height: 200px;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(255,255,255,0.04) 2px,
+      rgba(255,255,255,0.04) 4px
+    );
+    border: 1px solid var(--border);
+    margin-bottom: 3rem;
+
+    /* Radial mask: visible in center, invisible at edges */
+    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 80%);
+    -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 80%);
+  }
+
+
+  /*
+  ============================================================
+  BLEND MODE DEMOS
+  ============================================================
+  */
+
+  /* Grid of blend mode examples */
+  .blend-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    margin-bottom: 4rem;
+  }
+
+  .blend-cell {
+    background: var(--bg);
+    height: 160px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+  }
+
+  .blend-base {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #f5c842 0%, #e84855 50%, #4fc3f7 100%);
+  }
+
+  .blend-overlay {
+    position: absolute;
+    inset: 0;
+    background: var(--bg);
+    transition: opacity 0.3s ease;
+    opacity: 0.3;
+  }
+
+  .blend-cell:hover .blend-overlay { opacity: 1; }
+
+  .blend-cell[data-mode="multiply"]   .blend-overlay { mix-blend-mode: multiply; }
+  .blend-cell[data-mode="screen"]     .blend-overlay { mix-blend-mode: screen; }
+  .blend-cell[data-mode="overlay"]    .blend-overlay { mix-blend-mode: overlay; }
+  .blend-cell[data-mode="difference"] .blend-overlay { mix-blend-mode: difference; }
+  .blend-cell[data-mode="exclusion"]  .blend-overlay { mix-blend-mode: exclusion; }
+  .blend-cell[data-mode="hue"]        .blend-overlay { mix-blend-mode: hue; background: #c8f557; }
+  .blend-cell[data-mode="color"]      .blend-overlay { mix-blend-mode: color; background: #4fc3f7; }
+  .blend-cell[data-mode="luminosity"] .blend-overlay { mix-blend-mode: luminosity; }
+
+  .blend-cell .blend-label {
+    position: absolute;
+    bottom: 0.75rem;
+    left: 0.75rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.6);
+    font-family: var(--font-mono);
+    z-index: 10;
+  }
+
+
+  /*
+  ============================================================
+  PRACTICAL DEMO: Duotone image effect (screen + multiply)
+  This is how editorial sites make images feel "branded"
+  ============================================================
+  */
+  .duotone-demo {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    margin-bottom: 4rem;
+  }
+
+  .duotone-item {
+    height: 200px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Fake "photo" — solid color block representing an image */
+  .duotone-photo {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      160deg,
+      #2a2a2a 0%,
+      #4a4a4a 40%,
+      #222 70%,
+      #1a1a1a 100%
+    );
+  }
+
+  /* Duotone layer 1: screen blend in warm color */
+  .duotone-item:nth-child(1) .duotone-photo::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--accent);
+    mix-blend-mode: screen;
+    opacity: 0.6;
+  }
+
+  /* Duotone layer 2: multiply in a different color */
+  .duotone-item:nth-child(2) .duotone-photo::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--accent2);
+    mix-blend-mode: multiply;
+    opacity: 0.8;
+  }
+
+  .duotone-item:nth-child(2) .duotone-photo::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: #1a3a5c;
+    mix-blend-mode: screen;
+    opacity: 0.5;
+  }
+
+  /* Color mode: apply hue */
+  .duotone-item:nth-child(3) .duotone-photo::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: #c8f557;
+    mix-blend-mode: color;
+    opacity: 1;
+  }
+
+  .duotone-item .duotone-label {
+    position: absolute;
+    bottom: 1rem;
+    left: 1rem;
+    z-index: 1;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.7);
+  }
+
+
+  /* EXERCISE */
+  .exercise {
+    background: var(--surface); border: 1px solid var(--border);
+    border-top: 2px solid var(--accent); padding: 2rem; margin-top: 3rem;
+  }
+  .exercise h3 { font-family: var(--font-display); font-size: 2rem; letter-spacing: 0.05em; margin-bottom: 1rem; }
+  .exercise ol { padding-left: 1.5rem; color: var(--muted); font-size: 0.875rem; display: flex; flex-direction: column; gap: 0.75rem; }
+  .exercise ol li strong { color: var(--text); }
+</style>
+</head>
+<body>
+
+<span class="lesson-tag">Phase 1 · Task 05</span>
+
+<h1>MASKS<br>&amp; <span class="red">BLEND</span></h1>
+<p class="intro">Control visibility with masks. Compose layers with blend modes. These are the tools that make web feel like print.</p>
+
+<hr>
+
+<p class="section-label">Mask 1 — gradient fade mask</p>
+<div class="code">
+.element {
+  <span class="hl">mask-image: linear-gradient(to right, black 40%, transparent 100%);</span>
+  <span class="hl">-webkit-mask-image:</span> ... ; <span class="cm">/* always add webkit prefix */</span>
+}
+<span class="cm">/* black = fully visible, transparent = fully hidden, gray = partial */</span>
+</div>
+<div class="mask-fade">
+  <p>GRADIENT MASK FADE</p>
+</div>
+
+<p class="section-label">Mask 2 — video/gradient visible through text</p>
+<div class="code">
+<span class="cm">/* Classic technique: background visible ONLY through text shape */</span>
+.text {
+  color: transparent;
+  background: <span class="hl">[gradient or image]</span>;
+  <span class="hl">-webkit-background-clip: text;</span>
+  <span class="hl">background-clip: text;</span>
+}
+</div>
+<div class="mask-text-demo">
+  <div class="mask-text-bg"></div>
+  <div class="mask-text-overlay">MASKS</div>
+</div>
+
+<p class="section-label">Mask 3 — radial vignette (scanline texture fades at edges)</p>
+<div class="mask-vignette"></div>
+
+<hr>
+
+<p class="section-label">Blend modes — hover to intensify each mode</p>
+<div class="code">
+.overlay-layer {
+  position: absolute;
+  inset: 0;
+  background: #0c0c0c;
+  <span class="hl">mix-blend-mode: multiply;</span>  <span class="cm">/* multiply / screen / overlay / difference... */</span>
+}
+<span class="cm">/* The layer blends with everything BELOW it in the stacking context */</span>
+</div>
+
+<div class="blend-grid">
+  <div class="blend-cell" data-mode="multiply">
+    <div class="blend-base"></div>
+    <div class="blend-overlay"></div>
+    <span class="blend-label">multiply</span>
+  </div>
+  <div class="blend-cell" data-mode="screen">
+    <div class="blend-base"></div>
+    <div class="blend-overlay"></div>
+    <span class="blend-label">screen</span>
+  </div>
+  <div class="blend-cell" data-mode="overlay">
+    <div class="blend-base"></div>
+    <div class="blend-overlay"></div>
+    <span class="blend-label">overlay</span>
+  </div>
+  <div class="blend-cell" data-mode="difference">
+    <div class="blend-base"></div>
+    <div class="blend-overlay"></div>
+    <span class="blend-label">difference</span>
+  </div>
+  <div class="blend-cell" data-mode="exclusion">
+    <div class="blend-base"></div>
+    <div class="blend-overlay"></div>
+    <span class="blend-label">exclusion</span>
+  </div>
+  <div class="blend-cell" data-mode="hue">
+    <div class="blend-base"></div>
+    <div class="blend-overlay"></div>
+    <span class="blend-label">hue</span>
+  </div>
+  <div class="blend-cell" data-mode="color">
+    <div class="blend-base"></div>
+    <div class="blend-overlay"></div>
+    <span class="blend-label">color</span>
+  </div>
+  <div class="blend-cell" data-mode="luminosity">
+    <div class="blend-base"></div>
+    <div class="blend-overlay"></div>
+    <span class="blend-label">luminosity</span>
+  </div>
+</div>
+
+<p class="section-label">Practical — duotone image effect using blend modes</p>
+<div class="duotone-demo">
+  <div class="duotone-item">
+    <div class="duotone-photo"></div>
+    <span class="duotone-label">screen: warm</span>
+  </div>
+  <div class="duotone-item">
+    <div class="duotone-photo"></div>
+    <span class="duotone-label">multiply + screen</span>
+  </div>
+  <div class="duotone-item">
+    <div class="duotone-photo"></div>
+    <span class="duotone-label">color mode</span>
+  </div>
+</div>
+
+<div class="exercise">
+  <h3>EXERCISE</h3>
+  <ol>
+    <li><strong>Animated text reveal mask:</strong> Create a <code>.reveal</code> element. Use <code>mask-image</code> with a gradient that animates from all-transparent to all-black on page load via <code>@keyframes</code></li>
+    <li><strong>Image-in-text:</strong> Add a full-width element with a real background-image URL. Apply <code>background-clip: text</code> to make a big headline "filled" with the image</li>
+    <li><strong>Grain overlay:</strong> Use <code>mix-blend-mode: overlay</code> on a pseudo-element with an SVG noise texture to add film grain to any section</li>
+    <li><strong>Scroll-driven mask:</strong> Use JS to update a <code>--scroll</code> CSS variable on scroll, then use it in a mask gradient to reveal an element as you scroll past it</li>
+  </ol>
+</div>
+
+</body>
+</html>

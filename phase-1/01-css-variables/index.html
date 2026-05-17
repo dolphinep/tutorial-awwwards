@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task 01 — CSS Custom Properties & Theming</title>
+<style>
+  /*
+  ============================================================
+  LESSON: CSS CUSTOM PROPERTIES (VARIABLES)
+  ============================================================
+
+  CSS variables are declared with -- prefix inside a selector.
+  :root means "the whole document" — global scope.
+
+  WHY THIS MATTERS FOR AWWWARDS:
+  - Design tokens: one source of truth for colors, spacing, type
+  - JS can read/write them: document.documentElement.style.setProperty()
+  - Animate them with @property (Task 04)
+  - Scope them to components for theme variations
+  ============================================================
+  */
+
+  /* ---- DESIGN TOKENS ---- */
+  :root {
+    /* Color palette */
+    --color-bg:         #0a0a0a;
+    --color-surface:    #111111;
+    --color-border:     #222222;
+    --color-text:       #f0ede8;
+    --color-muted:      #666666;
+    --color-accent:     #1e8142;   /* sharp lime — the ONE accent */
+    --color-accent-dim: #7aaa1a;
+
+    /* Typography */
+    --font-display: 'Playfair Display', Georgia, serif;
+    --font-body:    'DM Sans', system-ui, sans-serif;
+
+    --size-xs:   0.75rem;   /* 12px */
+    --size-sm:   0.875rem;  /* 14px */
+    --size-base: 1rem;      /* 16px */
+    --size-lg:   1.25rem;   /* 20px */
+    --size-xl:   2rem;      /* 32px */
+    --size-2xl:  3.5rem;    /* 56px */
+    --size-3xl:  6rem;      /* 96px */
+
+    /* Spacing scale */
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-6: 1.5rem;
+    --space-8: 2rem;
+    --space-12: 3rem;
+    --space-16: 4rem;
+    --space-24: 6rem;
+
+    /* Motion */
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --duration-fast: 150ms;
+    --duration-base: 300ms;
+    --duration-slow: 600ms;
+
+    --radius-sm: 8px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
+    --radius-xl: 32px;
+  }
+
+  /*
+  SCOPED VARIABLES — override tokens per component.
+  The card below inherits from :root, but we override locally.
+  */
+  .card--highlight {
+    --color-surface: #1a1f0f;
+    --color-border:  #3a4f1a;
+  }
+
+  /* ---- RESET & BASE ---- */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
+
+  body {
+    font-family: var(--font-body);
+    font-size: var(--size-base);
+    background: var(--color-bg);
+    color: var(--color-text);
+    padding: var(--space-16) var(--space-8);
+    max-width: 900px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* ---- LESSON LABEL ---- */
+  .lesson-tag {
+    display: inline-block;
+    font-size: var(--size-xs);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    border: 1px solid var(--color-accent);
+    padding: var(--space-1) var(--space-3);
+    margin-bottom: var(--space-8);
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-size: var(--size-2xl);
+    font-weight: 400;
+    line-height: 1.1;
+    margin-bottom: var(--space-4);
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--color-accent);
+  }
+
+  .subtitle {
+    color: var(--color-muted);
+    font-size: var(--size-lg);
+    margin-bottom: var(--space-16);
+    font-weight: 300;
+  }
+
+  /* ---- DIVIDER ---- */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--color-border);
+    margin: var(--space-12) 0;
+  }
+
+  /* ---- SECTION HEADING ---- */
+  .section-label {
+    font-size: var(--size-xs);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    margin-bottom: var(--space-6);
+  }
+
+  /* ---- CARDS ---- */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: var(--space-4);
+    margin-bottom: var(--space-12);
+  }
+
+  .card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    padding: var(--space-6);
+    transition: border-color var(--duration-base) var(--ease-out-expo);
+    border-radius: var(--radius-sm);
+  }
+
+  .card:hover {
+    border-color: var(--color-accent-dim);
+  }
+
+  .card__label {
+    font-size: var(--size-xs);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    margin-bottom: var(--space-3);
+  }
+
+  .card__value {
+    font-family: var(--font-display);
+    font-size: var(--size-xl);
+    line-height: 1;
+    margin-bottom: var(--space-2);
+  }
+
+  .card__sub {
+    font-size: var(--size-sm);
+    color: var(--color-muted);
+  }
+
+  /* highlight card uses its own scoped --color-surface & --color-border */
+  .card--highlight .card__value {
+    color: var(--color-accent);
+  }
+
+  /* ---- THEME SWITCHER (JS reads/writes variables) ---- */
+  .theme-controls {
+    display: flex;
+    gap: var(--space-3);
+    margin-bottom: var(--space-12);
+    flex-wrap: wrap;
+  }
+
+  .theme-btn {
+    font-family: var(--font-body);
+    font-size: var(--size-sm);
+    padding: var(--space-2) var(--space-4);
+    background: transparent;
+    border: 1px solid var(--color-border);
+    color: var(--color-muted);
+    cursor: pointer;
+    transition: all var(--duration-fast);
+    letter-spacing: 0.05em;
+  }
+
+  .theme-btn:hover, .theme-btn.active {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  /* ---- CODE ANNOTATION ---- */
+  .code-block {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-left: 3px solid var(--color-accent);
+    padding: var(--space-6);
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: var(--size-sm);
+    line-height: 1.8;
+    color: var(--color-muted);
+    margin-bottom: var(--space-8);
+    overflow-x: auto;
+  }
+
+  .code-block .hl { color: var(--color-accent); }
+  .code-block .cm { color: #444; }
+
+  /* ---- EXERCISE BOX ---- */
+  .exercise {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-top: 3px solid var(--color-accent);
+    padding: var(--space-8);
+    margin-top: var(--space-12);
+  }
+
+  .exercise h3 {
+    font-family: var(--font-display);
+    font-size: var(--size-lg);
+    font-weight: 400;
+    margin-bottom: var(--space-4);
+  }
+
+  .exercise ol {
+    padding-left: var(--space-6);
+    color: var(--color-muted);
+    font-size: var(--size-sm);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .exercise ol li strong {
+    color: var(--color-text);
+  }
+
+  .my-card {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-6);
+    margin-top: var(--space-12);
+    font-size: var(--size-lg);
+    width: 50%;
+    text-align: center;
+    transition: border-color var(--duration-base) var(--ease-out-expo);
+  }
+
+  .my-card:hover {
+    border-color: var(--color-accent);
+  }
+
+  /* ---- SPACING VISUALIZER ---- */
+  .spacing-demo {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--space-2);
+    margin-bottom: var(--space-8);
+  }
+
+  .spacing-block {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    width: 40px;
+    position: relative;
+    transition: background var(--duration-base);
+  }
+
+  .spacing-block:hover { background: var(--color-accent); }
+
+  .spacing-block span {
+    position: absolute;
+    bottom: -22px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    color: var(--color-muted);
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+
+<span class="lesson-tag">Phase 1 · Task 01</span>
+
+<h1>CSS Custom<br><em>Properties</em></h1>
+<p class="subtitle">Design tokens — the foundation of every great design system</p>
+
+<hr class="divider">
+
+<!-- THEME SWITCHER -->
+<p class="section-label">Live demo — JS modifying CSS variables</p>
+<div class="theme-controls">
+  <button class="theme-btn active" onclick="setTheme('dark')">Dark</button>
+  <button class="theme-btn" onclick="setTheme('light')">Light</button>
+  <button class="theme-btn" onclick="setTheme('warm')">Warm</button>
+  <button class="theme-btn" onclick="setTheme('blue')">Cold</button>
+  <button class="theme-btn" onclick="setTheme('radial')">Radial</button>
+</div>
+
+<!-- CARDS using design tokens -->
+<p class="section-label">Components using tokens</p>
+<div class="card-grid">
+  <div class="card">
+    <div class="card__label">Typography token</div>
+    <div class="card__value" style="font-family: var(--font-display);">Display</div>
+    <div class="card__sub">--font-display · Playfair Display</div>
+  </div>
+  <div class="card card--highlight">
+    <div class="card__label">Accent color</div>
+    <div class="card__value">—</div>
+    <div class="card__sub">--color-accent · scoped override active</div>
+  </div>
+  <div class="card">
+    <div class="card__label">Easing token</div>
+    <div class="card__value" style="font-size: 1.2rem;">ease-out-expo</div>
+    <div class="card__sub">--ease-out-expo · cubic-bezier</div>
+  </div>
+</div>
+
+<!-- SPACING VISUALIZER -->
+<p class="section-label">Spacing scale</p>
+<div class="spacing-demo" id="spacing-demo"></div>
+
+<hr class="divider" style="margin-top: 3rem;">
+
+<!-- CODE EXPLAINER -->
+<p class="section-label">Key syntax to understand</p>
+<div class="code-block">
+<span class="cm">/* Declare in :root = global scope */</span>
+:root {
+  <span class="hl">--color-accent: #c8f557;</span>
+  <span class="hl">--ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);</span>
+}
+
+<span class="cm">/* Use with var() */</span>
+.button {
+  background: <span class="hl">var(--color-accent)</span>;
+  transition: transform <span class="hl">var(--duration-base)</span> <span class="hl">var(--ease-out-expo)</span>;
+}
+
+<span class="cm">/* Scope override — component gets its own value */</span>
+.card--dark {
+  <span class="hl">--color-surface: #1a1a1a;</span>  <span class="cm">/* only affects this card */</span>
+}
+
+<span class="cm">/* JS can read AND write them */</span>
+<span class="hl">document.documentElement.style.setProperty('--color-accent', '#ff6b35');</span>
+</div>
+
+<!-- EXERCISE -->
+<div class="exercise">
+  <h3>✦ Your Exercise</h3>
+  <ol>
+    <li><strong>Open this file</strong>, find the <code>:root</code> block, change <code>--color-accent</code> to any color you like — watch everything update at once</li>
+    <li><strong>Add a new token</strong>: <code>--radius-sm</code>, <code>--radius-lg</code> and apply it to the <code>.card</code></li>
+    <li><strong>Create a new theme</strong> in the JS <code>themes</code> object below — give it a name and a personality</li>
+    <li><strong>Add a component</strong> that uses <code>--color-accent</code> for its border on hover — without touching any other color value</li>
+  </ol>
+</div>
+
+<div class="my-card">
+  <p>My card</p>
+</div>
+
+<script>
+  /* ---- Spacing visualizer ---- */
+  const spaces = [
+    { label: '--space-1', h: 4 },
+    { label: '--space-2', h: 8 },
+    { label: '--space-3', h: 12 },
+    { label: '--space-4', h: 16 },
+    { label: '--space-6', h: 24 },
+    { label: '--space-8', h: 32 },
+    { label: '--space-12', h: 48 },
+    { label: '--space-16', h: 64 },
+  ];
+
+  const demo = document.getElementById('spacing-demo');
+  spaces.forEach(s => {
+    demo.innerHTML += `<div class="spacing-block" style="height:${s.h}px"><span>${s.label}</span></div>`;
+  });
+
+  /* ---- Theme switcher ---- */
+  /*
+  THIS IS THE KEY TECHNIQUE:
+  JS writing CSS variables on documentElement
+  = instant theme switch with zero repaints of individual elements
+  */
+  const themes = {
+    dark: {
+      '--color-bg':      '#0a0a0a',
+      '--color-surface': '#111111',
+      '--color-border':  '#222222',
+      '--color-text':    '#f0ede8',
+      '--color-muted':   '#666666',
+      '--color-accent':  '#1e8142',
+      '--color-accent-dim': '#7aaa1a',
+    },
+    light: {
+      '--color-bg':      '#f5f2ed',
+      '--color-surface': '#ffffff',
+      '--color-border':  '#e0ddd8',
+      '--color-text':    '#111111',
+      '--color-muted':   '#999999',
+      '--color-accent':  '#1a1a1a',
+      '--color-accent-dim': '#444444',
+    },
+    warm: {
+      '--color-bg':      '#120d09',
+      '--color-surface': '#1a1108',
+      '--color-border':  '#2e1f0a',
+      '--color-text':    '#f5e8d0',
+      '--color-muted':   '#7a5a30',
+      '--color-accent':  '#ff8c42',
+      '--color-accent-dim': '#c45e1a',
+    },
+    blue: {
+      '--color-bg':      '#060a12',
+      '--color-surface': '#0a1020',
+      '--color-border':  '#132040',
+      '--color-text':    '#d0e8ff',
+      '--color-muted':   '#4a6a9a',
+      '--color-accent':  '#4fc3f7',
+      '--color-accent-dim': '#0288d1',
+    },
+    radial: {
+      '--color-bg':      '#e8e4df',
+      '--color-surface': '#f8f5f1',
+      '--color-border':  '#d5d1cc',
+      '--color-text':    '#1a1816',
+      '--color-muted':   '#666666',
+      '--color-accent':  '#8b4513',
+      '--color-accent-dim': '#c45e1a',
+    }
+  };
+
+  function setTheme(name) {
+    const t = themes[name];
+    const root = document.documentElement;
+
+    /* Writing each variable directly onto :root */
+    Object.entries(t).forEach(([prop, val]) => {
+      root.style.setProperty(prop, val);
+    });
+
+    document.querySelectorAll('.theme-btn').forEach(b => {
+      b.classList.toggle('active', b.textContent.toLowerCase() === name);
+    });
+  }
+</script>
+</body>
+</html>

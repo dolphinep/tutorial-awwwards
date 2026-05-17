@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task 04 — CSS @property</title>
+<style>
+  /*
+  ============================================================
+  LESSON: CSS @property
+  ============================================================
+
+  Without @property, CSS cannot animate custom properties.
+  Try animating --color from red to blue without @property —
+  it just snaps, no interpolation.
+
+  @property registers a variable with:
+  - syntax: what TYPE the value is (color, number, percentage…)
+  - inherits: whether children inherit it
+  - initial-value: the default
+
+  Once registered, the browser knows HOW to interpolate it,
+  and transition/animation works.
+
+  USE CASES:
+  - Animate gradient positions (impossible otherwise)
+  - Animate individual color channels
+  - Counter animations without JS
+  - Houdini paint worklets (advanced)
+  ============================================================
+  */
+
+  /* REGISTER PROPERTIES */
+  @property --gradient-angle {
+    syntax: '<angle>';
+    inherits: false;
+    initial-value: 0deg;
+  }
+
+  @property --gradient-stop-1 {
+    syntax: '<color>';
+    inherits: false;
+    initial-value: #c8f557;
+  }
+
+  @property --gradient-stop-2 {
+    syntax: '<color>';
+    inherits: false;
+    initial-value: #1a3a5c;
+  }
+
+  @property --hue {
+    syntax: '<number>';
+    inherits: false;
+    initial-value: 200;
+  }
+
+  @property --progress {
+    syntax: '<number>';
+    inherits: false;
+    initial-value: 0;
+  }
+
+  :root {
+    --bg:      #080808;
+    --surface: #101010;
+    --border:  #1e1e1e;
+    --text:    #e8e4de;
+    --muted:   #555;
+    --accent:  #c8f557;
+
+    --font-display: 'Syne', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+    --font-mono: 'SF Mono', monospace;
+  }
+
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--text);
+    padding: 4rem 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .lesson-tag {
+    font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--accent); border: 1px solid var(--accent);
+    display: inline-block; padding: 0.2rem 0.6rem; margin-bottom: 3rem;
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(3rem, 8vw, 6.5rem);
+    line-height: 0.9;
+    margin-bottom: 1rem;
+  }
+
+  h1 span { color: var(--accent); }
+
+  .intro { color: var(--muted); font-size: 1rem; max-width: 500px; line-height: 1.7; margin-bottom: 4rem; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 4rem 0; }
+  .section-label { font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 1.5rem; }
+
+  .code {
+    background: var(--surface); border-left: 2px solid var(--accent);
+    padding: 1.5rem; font-family: var(--font-mono);
+    font-size: 0.8rem; line-height: 1.8; color: var(--muted); margin: 1.5rem 0;
+  }
+  .code .hl { color: var(--accent); }
+  .code .cm { color: #333; }
+
+
+  /*
+  ============================================================
+  DEMO 1: Animated gradient via @property
+  Without registration, gradient transitions just snap.
+  ============================================================
+  */
+
+  .gradient-box {
+    height: 200px;
+    border-radius: 4px;
+    margin-bottom: 4rem;
+    background: conic-gradient(from var(--gradient-angle), var(--gradient-stop-1), var(--gradient-stop-2), var(--gradient-stop-1));
+    transition:
+      --gradient-angle 1s ease,
+      --gradient-stop-1 0.8s ease,
+      --gradient-stop-2 0.8s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  .gradient-box:hover {
+    --gradient-angle: 180deg;
+    --gradient-stop-1: #ff6b35;
+    --gradient-stop-2: #7c1fa8;
+  }
+
+  .gradient-box span {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.5rem;
+    letter-spacing: 0.1em;
+    color: rgba(0,0,0,0.7);
+    text-transform: uppercase;
+  }
+
+
+  /*
+  ============================================================
+  DEMO 2: Spinning border gradient
+  @keyframes can animate registered properties too
+  ============================================================
+  */
+
+  @keyframes spin-gradient {
+    to { --gradient-angle: 360deg; }
+  }
+
+  .spinning-border {
+    position: relative;
+    padding: 2px;
+    border-radius: 8px;
+    background: conic-gradient(from var(--gradient-angle), #c8f557, #1a3a5c, #c4302b, #c8f557);
+    animation: spin-gradient 3s linear infinite;
+    margin-bottom: 4rem;
+    display: inline-block;
+  }
+
+  .spinning-border-inner {
+    background: var(--bg);
+    border-radius: 6px;
+    padding: 2rem 3rem;
+  }
+
+  .spinning-border-inner p {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--text);
+    letter-spacing: 0.05em;
+  }
+
+
+  /*
+  ============================================================
+  DEMO 3: Hue cycling — register a <number>, use in hsl()
+  ============================================================
+  */
+
+  @keyframes hue-cycle {
+    to { --hue: 560; }
+  }
+
+  .hue-strip {
+    height: 60px;
+    border-radius: 4px;
+    margin-bottom: 4rem;
+    background: linear-gradient(
+      to right,
+      hsl(calc(var(--hue) + 0deg), 80%, 60%),
+      hsl(calc(var(--hue) + 60deg), 80%, 60%),
+      hsl(calc(var(--hue) + 120deg), 80%, 60%),
+      hsl(calc(var(--hue) + 180deg), 80%, 60%),
+      hsl(calc(var(--hue) + 240deg), 80%, 60%)
+    );
+    animation: hue-cycle 4s linear infinite;
+  }
+
+
+  /*
+  ============================================================
+  DEMO 4: CSS counter animation
+  Animate a <number> and display with counter()
+  This is how you do animated numbers without JS
+  ============================================================
+  */
+
+  @keyframes count-up {
+    to { --progress: 100; }
+  }
+
+  .counter-demo {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    margin-bottom: 4rem;
+  }
+
+  .counter-item {
+    background: var(--bg);
+    padding: 2rem 1.5rem;
+    counter-reset: val var(--progress);
+    animation: count-up 2s var(--ease-out) forwards;
+  }
+
+  .counter-item:nth-child(1) { animation-duration: 1.5s; }
+  .counter-item:nth-child(2) { animation-duration: 2.2s; }
+  .counter-item:nth-child(3) { animation-duration: 1.8s; }
+
+  :root { --ease-out: cubic-bezier(0.16, 1, 0.3, 1); }
+
+  .counter-item::before {
+    display: block;
+    content: counter(val);
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+
+  .counter-item .label {
+    font-size: 0.75rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+
+  /*
+  ============================================================
+  DEMO 5: Hover transition on individual color channels
+  ============================================================
+  */
+
+  .color-cards {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 4rem;
+    flex-wrap: wrap;
+  }
+
+  .color-card {
+    flex: 1;
+    min-width: 140px;
+    height: 140px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition:
+      --gradient-stop-1 0.5s ease,
+      --gradient-stop-2 0.5s ease;
+    background: linear-gradient(135deg, var(--gradient-stop-1), var(--gradient-stop-2));
+  }
+
+  .color-card:nth-child(1):hover { --gradient-stop-1: #ff0080; --gradient-stop-2: #7928ca; }
+  .color-card:nth-child(2):hover { --gradient-stop-1: #00d2ff; --gradient-stop-2: #3a7bd5; }
+  .color-card:nth-child(3):hover { --gradient-stop-1: #f7971e; --gradient-stop-2: #ffd200; }
+  .color-card:nth-child(4):hover { --gradient-stop-1: #11998e; --gradient-stop-2: #38ef7d; }
+
+  .color-card span {
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(0,0,0,0.6);
+  }
+
+
+  /* EXERCISE */
+  .exercise {
+    background: var(--surface); border: 1px solid var(--border);
+    border-top: 2px solid var(--accent); padding: 2rem; margin-top: 3rem;
+  }
+  .exercise h3 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.2rem; margin-bottom: 1rem; }
+  .exercise ol { padding-left: 1.5rem; color: var(--muted); font-size: 0.875rem; display: flex; flex-direction: column; gap: 0.75rem; }
+  .exercise ol li strong { color: var(--text); }
+</style>
+</head>
+<body>
+
+<span class="lesson-tag">Phase 1 · Task 04</span>
+
+<h1>CSS<br><span>@property</span></h1>
+<p class="intro">Register custom properties with a type. Now the browser can interpolate them. Animate gradients, counters, colors — without a single line of JavaScript.</p>
+
+<hr>
+
+<div class="code">
+<span class="cm">/* Register the property first — tell browser what TYPE it is */</span>
+<span class="hl">@property --gradient-angle</span> {
+  <span class="hl">syntax: '&lt;angle&gt;';</span>   <span class="cm">/* can be deg, rad, turn */</span>
+  inherits: false;
+  initial-value: 0deg;
+}
+
+<span class="cm">/* Now transition WORKS because browser knows how to interpolate &lt;angle&gt; */</span>
+.box {
+  background: conic-gradient(from <span class="hl">var(--gradient-angle)</span>, red, blue);
+  transition: <span class="hl">--gradient-angle</span> 1s ease;   <span class="cm">/* ← this line now works! */</span>
+}
+
+.box:hover { <span class="hl">--gradient-angle: 360deg;</span> }
+</div>
+
+<p class="section-label">Demo 1 — Hover to animate gradient angle + color stops</p>
+<div class="gradient-box">
+  <span>Hover me</span>
+</div>
+
+<p class="section-label">Demo 2 — @keyframes on a registered property (spinning border)</p>
+<div class="spinning-border">
+  <div class="spinning-border-inner">
+    <p>Animated conic-gradient border</p>
+  </div>
+</div>
+
+<p class="section-label">Demo 3 — Hue cycling with &lt;number&gt; in hsl()</p>
+<div class="hue-strip"></div>
+
+<p class="section-label">Demo 4 — Pure CSS counter animation (no JS)</p>
+<div class="code">
+@property --progress {
+  syntax: <span class="hl">'&lt;number&gt;'</span>;
+  inherits: false;
+  initial-value: 0;
+}
+
+@keyframes count-up { to { --progress: 100; } }
+
+.stat {
+  counter-reset: val <span class="hl">var(--progress)</span>;
+  animation: count-up 2s forwards;
+}
+
+.stat::before {
+  content: <span class="hl">counter(val)</span>;  <span class="cm">/* displays the animated number */</span>
+}
+</div>
+
+<div class="counter-demo">
+  <div class="counter-item"><span class="label">Awwwards won</span></div>
+  <div class="counter-item"><span class="label">Projects shipped</span></div>
+  <div class="counter-item"><span class="label">Coffee cups</span></div>
+</div>
+
+<p class="section-label">Demo 5 — Hover to transition gradient (each card transitions smoothly)</p>
+<div class="color-cards">
+  <div class="color-card"><span>Hover</span></div>
+  <div class="color-card"><span>Hover</span></div>
+  <div class="color-card"><span>Hover</span></div>
+  <div class="color-card"><span>Hover</span></div>
+</div>
+
+<div class="exercise">
+  <h3>Your Exercise</h3>
+  <ol>
+    <li><strong>Register a &lt;length&gt; property</strong> called <code>--border-size</code>, use it in a box-shadow, and animate it on hover</li>
+    <li><strong>Create a progress bar</strong>: register <code>--width</code> as <code>&lt;percentage&gt;</code>, animate it with <code>@keyframes</code> from 0% to 85%</li>
+    <li><strong>Add 3 more stats</strong> to the counter demo with different numbers and durations</li>
+    <li><strong>Compare:</strong> Try removing the <code>@property</code> block for <code>--gradient-angle</code>. What happens to the hover animation? This confirms why registration matters.</li>
+  </ol>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,634 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Task 02 — CSS Grid Advanced</title>
+    <style>
+      /*
+  ============================================================
+  LESSON: CSS GRID — SUBGRID & NAMED AREAS
+  ============================================================
+
+  Regular CSS Grid is fine for simple layouts.
+  Awwwards-level design needs:
+
+  1. NAMED GRID AREAS — layout as a visual map
+  2. DENSE PACKING — fill gaps automatically
+  3. SUBGRID — children align to the PARENT grid tracks
+  4. NEGATIVE PLACEMENT — items break out of their cell
+  5. OVERLAPPING ITEMS — intentional layering
+
+  These techniques are what make layouts look designed,
+  not templated.
+  ============================================================
+  */
+
+      :root {
+        --bg: #0e0e0e;
+        --surface: #161616;
+        --border: #2a2a2a;
+        --text: #e8e4de;
+        --muted: #555;
+        --accent: #e8d5b0; /* warm parchment */
+        --accent2: #c4302b; /* editorial red */
+
+        --font-display: "Cormorant Garamond", Georgia, serif;
+        --font-body: "DM Sans", sans-serif;
+        --font-mono: "SF Mono", "Fira Code", monospace;
+      }
+
+      @import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap");
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: var(--font-body);
+        background: var(--bg);
+        color: var(--text);
+        padding: 4rem 2rem;
+        max-width: 1100px;
+        margin: 0 auto;
+      }
+
+      .lesson-tag {
+        font-size: 0.7rem;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: var(--accent2);
+        border: 1px solid var(--accent2);
+        display: inline-block;
+        padding: 0.2rem 0.6rem;
+        margin-bottom: 3rem;
+      }
+
+      h1 {
+        font-family: var(--font-display);
+        font-size: clamp(3rem, 8vw, 6rem);
+        font-weight: 300;
+        line-height: 0.95;
+        margin-bottom: 1rem;
+      }
+
+      h1 em {
+        font-style: italic;
+        color: var(--accent);
+      }
+
+      .title-container {
+        display: flex;
+        flex-direction: row;
+        gap: 2rem;
+        padding: 2rem;
+      }
+
+      .title-container .title {
+        flex-direction: column;
+      }
+
+      .intro {
+        color: var(--muted);
+        font-size: 1rem;
+        max-width: 500px;
+        line-height: 1.7;
+        margin-bottom: 4rem;
+      }
+
+      .title-number {
+        font-family: var(--font-display);
+        font-size: 10rem;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.04);
+        padding: 2rem;
+      }
+
+      hr {
+        border: none;
+        border-top: 1px solid var(--border);
+        margin: 4rem 0;
+      }
+
+      .section-label {
+        font-size: 0.7rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 1.5rem;
+      }
+
+      /* ---- CODE BLOCK ---- */
+      .code {
+        background: var(--surface);
+        border-left: 2px solid var(--accent2);
+        padding: 1.5rem;
+        font-family: var(--font-mono);
+        font-size: 0.8rem;
+        line-height: 1.8;
+        color: var(--muted);
+        margin: 2rem 0;
+        overflow-x: auto;
+      }
+      .code .hl {
+        color: var(--accent);
+      }
+      .code .cm {
+        color: #333;
+      }
+
+      /*
+  ============================================================
+  TECHNIQUE 1: NAMED GRID AREAS
+  grid-template-areas is like drawing your layout as ASCII art.
+  ============================================================
+  */
+      .magazine-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr;
+        grid-template-rows: auto auto auto;
+        gap: 1px;
+        background: var(--border); /* gap trick: bg shows through gaps */
+        margin-bottom: 4rem;
+
+        grid-template-areas:
+          "sidebar   hero   hero"
+          "sidebar   hero   hero"
+          "sidebar story1 story2";
+      }
+
+      .magazine-grid > * {
+        background: var(--bg);
+        padding: 2rem;
+      }
+
+      .area-hero {
+        grid-area: hero;
+      }
+      .area-sidebar {
+        grid-area: sidebar;
+      }
+      .area-story1 {
+        grid-area: story1;
+      }
+      .area-story2 {
+        grid-area: story2;
+      }
+
+      .area-hero {
+        background: var(--surface);
+      }
+
+      .area-hero .big-text {
+        font-family: var(--font-display);
+        font-size: clamp(2.5rem, 5vw, 4.5rem);
+        font-weight: 300;
+        line-height: 1;
+        margin-bottom: 1rem;
+      }
+
+      .area-hero .big-text em {
+        font-style: italic;
+        color: var(--accent);
+      }
+
+      .area-hero p {
+        color: var(--muted);
+        font-size: 0.9rem;
+        max-width: 40ch;
+        line-height: 1.7;
+      }
+
+      .area-sidebar {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        gap: 1.5rem;
+      }
+
+      .sidebar-item {
+        border-top: 1px solid var(--border);
+        padding-top: 1rem;
+      }
+
+      .sidebar-item .num {
+        font-size: 0.65rem;
+        letter-spacing: 0.15em;
+        color: var(--accent2);
+        display: block;
+        margin-bottom: 0.5rem;
+      }
+
+      .sidebar-item p {
+        font-family: var(--font-display);
+        font-size: 1.1rem;
+        font-weight: 300;
+        line-height: 1.3;
+        color: var(--text);
+      }
+
+      .area-story1,
+      .area-story2 {
+        background: var(--bg);
+      }
+
+      .story-label {
+        font-size: 0.65rem;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 0.75rem;
+      }
+
+      .story-headline {
+        font-family: var(--font-display);
+        font-size: 1.4rem;
+        font-weight: 300;
+        line-height: 1.2;
+        color: var(--accent);
+      }
+
+      /*
+  ============================================================
+  TECHNIQUE 2: OVERLAPPING ITEMS
+  Grid allows items to occupy the same cells — use z-index to layer.
+  This creates depth and editorial punch.
+  ============================================================
+  */
+      .overlap-demo {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        grid-template-rows: 120px 120px;
+        gap: 8px;
+        margin-bottom: 4rem;
+        position: relative;
+      }
+
+      .overlap-bg {
+        grid-column: 1 / 9;
+        grid-row: 1 / 3;
+        background: var(--surface);
+        border: 1px solid var(--border);
+      }
+
+      .overlap-accent {
+        grid-column: 6 / 13;
+        grid-row: 1 / 2;
+        background: var(--accent2);
+        /* overlaps with .overlap-bg */
+        z-index: 1;
+        display: flex;
+        align-items: flex-end;
+        padding: 1rem 1.5rem;
+      }
+
+      .overlap-accent span {
+        font-family: var(--font-display);
+        font-size: 0.9rem;
+        font-style: italic;
+        color: rgba(255, 255, 255, 0.9);
+      }
+
+      .overlap-text {
+        grid-column: 2 / 8;
+        grid-row: 1 / 2;
+        /* overlaps accent AND bg */
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        padding: 0 1rem;
+        pointer-events: none;
+      }
+
+      .overlap-text .huge {
+        font-family: var(--font-display);
+        font-size: clamp(3rem, 7vw, 5rem);
+        font-weight: 600;
+        color: var(--text);
+        line-height: 1;
+      }
+
+      .overlap-bottom {
+        grid-column: 7 / 13;
+        grid-row: 2 / 3;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        padding: 1rem 1.5rem;
+      }
+
+      .overlap-bottom p {
+        font-size: 0.8rem;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      .overlap-number {
+        z-index: 3;
+        font-family: var(--font-display);
+        font-size: 10rem;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.04);
+        line-height: 1;
+        user-select: none;
+        grid-column: 1/14;
+        grid-row: 1/3;
+        align-self: center;
+      }
+
+      /*
+  ============================================================
+  TECHNIQUE 3: SUBGRID
+  Children of a grid item can align to the PARENT grid tracks.
+  Without subgrid, each item creates its own isolated grid.
+  ============================================================
+  */
+      .subgrid-parent {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1px;
+        background: var(--border);
+        margin-bottom: 4rem;
+      }
+
+      .subgrid-card {
+        background: var(--bg);
+        /* Each card is a SUBGRID — its rows align with siblings */
+        display: grid;
+        grid-row: span 3;
+        grid-template-rows: subgrid;
+        padding: 1.5rem;
+        gap: 0;
+      }
+
+      /* Without subgrid, the baseline of these would never align.
+     With subgrid, row 1 (label), row 2 (headline), row 3 (body)
+     are ALL aligned across all 3 cards — even with different content lengths. */
+
+      .subgrid-card .card-tag {
+        font-size: 0.65rem;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: var(--accent2);
+        align-self: start;
+        padding-bottom: 1rem;
+      }
+
+      .subgrid-card .card-title {
+        font-family: var(--font-display);
+        font-size: 1.5rem;
+        font-weight: 300;
+        line-height: 1.2;
+        align-self: start;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .subgrid-card .card-body {
+        font-size: 0.85rem;
+        color: var(--muted);
+        line-height: 1.7;
+        align-self: start;
+        padding-top: 1rem;
+      }
+
+      /* Exercise box */
+      .exercise {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-top: 2px solid var(--accent2);
+        padding: 2rem;
+        margin-top: 3rem;
+      }
+
+      .exercise h3 {
+        font-family: var(--font-display);
+        font-size: 1.3rem;
+        font-weight: 400;
+        margin-bottom: 1rem;
+      }
+
+      .exercise ol {
+        padding-left: 1.5rem;
+        color: var(--muted);
+        font-size: 0.875rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .exercise ol li strong {
+        color: var(--text);
+      }
+    </style>
+  </head>
+  <body>
+    <span class="lesson-tag">Phase 1 · Task 02</span>
+
+    <div class="title-container">
+      <div class="title-number">02</div>
+      <div class="title">
+        <h1>
+          CSS Grid<br />
+          <em>Advanced</em>
+        </h1>
+        <p class="intro">
+          Named areas, subgrid, and overlapping items — the techniques that make
+          layouts look designed, not generated.
+        </p>
+      </div>
+    </div>
+
+    <hr />
+
+    <!-- TECHNIQUE 1: NAMED AREAS -->
+    <p class="section-label">
+      Technique 1 — Named grid areas (magazine layout)
+    </p>
+
+    <div class="code">
+      <span class="cm"
+        >/* Draw your layout as ASCII — each string is a row */</span
+      >
+      .grid { display: grid; grid-template-columns: 2fr 1fr 1fr;
+      <span class="hl">grid-template-areas:</span>
+      <span class="hl">"sidebar hero hero"</span>
+      <span class="hl">"sidebar hero hero"</span>
+      <span class="hl">"sidebar story1 story2";</span>
+      } .area-hero { <span class="hl">grid-area: hero;</span> }
+      <span class="cm">/* no column/row math needed */</span> .area-sidebar {
+      <span class="hl">grid-area: sidebar;</span> }
+    </div>
+
+    <div class="magazine-grid">
+      <div class="area-hero">
+        <p
+          style="
+            font-size: 0.65rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--accent2);
+            margin-bottom: 1rem;
+          "
+        >
+          The cover story
+        </p>
+        <div class="big-text">Design is<br /><em>never neutral</em></div>
+        <p>
+          Every choice — typeface, whitespace, color — is a statement. The
+          designer who pretends otherwise is lying to themselves.
+        </p>
+      </div>
+      <div class="area-sidebar">
+        <div class="sidebar-item">
+          <span class="num">01 / Culture</span>
+          <p>Why the best interfaces feel invisible</p>
+        </div>
+        <div class="sidebar-item">
+          <span class="num">02 / Process</span>
+          <p>From napkin sketch to award submission</p>
+        </div>
+        <div class="sidebar-item">
+          <span class="num">03 / Tools</span>
+          <p>The five things every creative dev should know</p>
+        </div>
+      </div>
+      <div class="area-story1">
+        <p class="story-label">Motion</p>
+        <p class="story-headline">
+          Animation is not decoration. It is communication.
+        </p>
+      </div>
+      <div class="area-story2">
+        <p class="story-label">Typography</p>
+        <p class="story-headline">
+          The typeface sets the tone before a word is read.
+        </p>
+      </div>
+    </div>
+
+    <!-- TECHNIQUE 2: OVERLAPPING -->
+    <p class="section-label">Technique 2 — Overlapping grid items</p>
+
+    <div class="code">
+      <span class="cm">/* Items can share cells — use z-index to layer */</span>
+      .bg-block { grid-column: 1 / 9; grid-row: 1 / 3; } .red-block {
+      grid-column: <span class="hl">6 / 13</span>; grid-row: 1 / 2;
+      <span class="hl">z-index: 1;</span> } .text-layer { grid-column:
+      <span class="hl">2 / 8</span>; grid-row: 1 / 2;
+      <span class="hl">z-index: 2;</span> }
+      <span class="cm"
+        >/* text-layer overlaps both bg AND red — intentional depth */</span
+      >
+    </div>
+
+    <div class="overlap-demo">
+      <div class="overlap-bg"></div>
+      <div class="overlap-accent">
+        <span>"The grid is the cage you choose to escape."</span>
+      </div>
+      <div class="overlap-text"><span class="huge">GRID</span></div>
+      <div class="overlap-bottom">
+        <p>
+          When items overlap, you create depth and hierarchy that a simple
+          layout can never achieve.
+        </p>
+      </div>
+      <div class="overlap-number">04</div>
+    </div>
+
+    <!-- TECHNIQUE 3: SUBGRID -->
+    <p class="section-label">
+      Technique 3 — Subgrid (baselines align across cards)
+    </p>
+
+    <div class="code">
+      .parent { display: grid; grid-template-columns: repeat(3, 1fr); } .card {
+      <span class="hl">display: grid;</span>
+      <span class="hl">grid-row: span 3;</span>
+      <span class="hl">grid-template-rows: subgrid;</span>
+      <span class="cm">/* aligns to PARENT tracks */</span>
+      }
+      <span class="cm"
+        >/* Now .card-tag, .card-title, .card-body all align across siblings
+        */</span
+      >
+      <span class="cm"
+        >/* even when content lengths differ — impossible without subgrid
+        */</span
+      >
+    </div>
+
+    <div class="subgrid-parent" style="grid-template-rows: repeat(3, auto)">
+      <div class="subgrid-card">
+        <span class="card-tag">Typography</span>
+        <h3 class="card-title">
+          Choose typefaces that have a point of view Choose typefaces that have
+          a point of view Choose typefaces that have a point of view
+        </h3>
+        <p class="card-body">
+          A font that says nothing is worse than the wrong font. At least the
+          wrong font tried.
+        </p>
+      </div>
+      <div class="subgrid-card">
+        <span class="card-tag">Motion</span>
+        <h3 class="card-title">
+          One great transition beats ten mediocre micro-interactions
+        </h3>
+        <p class="card-body">
+          Restraint is harder than excess. Start with one animation and make it
+          perfect.
+        </p>
+      </div>
+      <div class="subgrid-card">
+        <span class="card-tag">Layout</span>
+        <h3 class="card-title">Break the grid to prove you know it</h3>
+        <p class="card-body">
+          You can only meaningfully violate a grid when you've first committed
+          to one.
+        </p>
+      </div>
+      <div class="subgrid-card">
+        <span class="card-tag">New</span>
+        <h3 class="card-title">Break the grid to prove you know it</h3>
+        <p class="card-body">
+          You can only meaningfully violate a grid when you've first committed
+          to one. New subgrid
+        </p>
+      </div>
+    </div>
+
+    <div class="exercise">
+      <h3>✦ Your Exercise</h3>
+      <ol>
+        <li>
+          <strong>Change the magazine layout:</strong> Modify
+          <code>grid-template-areas</code> so the sidebar moves to the left.
+          Swap "hero hero sidebar" to "sidebar hero hero"
+        </li>
+        <li>
+          <strong>Add a 4th card</strong> to the subgrid and notice how baseline
+          alignment still holds automatically
+        </li>
+        <li>
+          <strong>Create a new overlap:</strong> Add a
+          <code>.overlap-number</code> element that sits at
+          <code>z-index: 3</code> and shows a large "04" — make it partially
+          off-screen
+        </li>
+        <li>
+          <strong>Experiment:</strong> What happens to the magazine layout if
+          you remove <code>grid-template-areas</code> and only use
+          <code>grid-column</code>/<code>grid-row</code>? Which approach feels
+          more readable?
+        </li>
+      </ol>
+    </div>
+  </body>
+</html>
