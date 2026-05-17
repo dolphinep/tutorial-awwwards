@@ -1,68 +1,102 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Task 03 — clip-path & shape-outside</title>
-<style>
-  :root {
-    --bg:      #f5f0e8;
-    --surface: #ede8df;
-    --border:  #d4cfc5;
-    --text:    #111111;
-    --muted:   #888;
-    --accent:  #c4302b;
-    --accent2: #1a3a5c;
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Task 03 — clip-path & shape-outside</title>
+    <style>
+      :root {
+        --bg: #f5f0e8;
+        --surface: #ede8df;
+        --border: #d4cfc5;
+        --text: #111111;
+        --muted: #888;
+        --accent: #c4302b;
+        --accent2: #1a3a5c;
 
-    --font-display: 'Bebas Neue', Impact, sans-serif;
-    --font-body: 'DM Sans', sans-serif;
-    --font-serif: 'Cormorant Garamond', Georgia, serif;
-    --font-mono: 'SF Mono', monospace;
-  }
+        --font-display: "Bebas Neue", Impact, sans-serif;
+        --font-body: "DM Sans", sans-serif;
+        --font-serif: "Cormorant Garamond", Georgia, serif;
+        --font-mono: "SF Mono", monospace;
+      }
 
-  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@0,300;1,300&family=DM+Sans:wght@300;400&display=swap');
+      @import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@0,300;1,300&family=DM+Sans:wght@300;400&display=swap");
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
 
-  body {
-    font-family: var(--font-body);
-    background: var(--bg);
-    color: var(--text);
-    padding: 4rem 2rem;
-    max-width: 1000px;
-    margin: 0 auto;
-  }
+      body {
+        font-family: var(--font-body);
+        background: var(--bg);
+        color: var(--text);
+        padding: 4rem 2rem;
+        max-width: 1000px;
+        margin: 0 auto;
+      }
 
-  .lesson-tag {
-    font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase;
-    color: var(--accent); border: 1px solid var(--accent);
-    display: inline-block; padding: 0.2rem 0.6rem; margin-bottom: 3rem;
-  }
+      .lesson-tag {
+        font-size: 0.7rem;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: var(--accent);
+        border: 1px solid var(--accent);
+        display: inline-block;
+        padding: 0.2rem 0.6rem;
+        margin-bottom: 3rem;
+      }
 
-  h1 {
-    font-family: var(--font-display);
-    font-size: clamp(4rem, 10vw, 8rem);
-    line-height: 0.9;
-    letter-spacing: 0.02em;
-    margin-bottom: 1rem;
-    color: var(--text);
-  }
+      h1 {
+        font-family: var(--font-display);
+        font-size: clamp(4rem, 10vw, 8rem);
+        line-height: 0.9;
+        letter-spacing: 0.02em;
+        margin-bottom: 1rem;
+        color: var(--text);
+      }
 
-  .intro { color: var(--muted); font-size: 1rem; max-width: 480px; line-height: 1.7; margin-bottom: 4rem; }
-  hr { border: none; border-top: 1px solid var(--border); margin: 4rem 0; }
-  .section-label { font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 1.5rem; }
+      .intro {
+        color: var(--muted);
+        font-size: 1rem;
+        max-width: 480px;
+        line-height: 1.7;
+        margin-bottom: 4rem;
+      }
+      hr {
+        border: none;
+        border-top: 1px solid var(--border);
+        margin: 4rem 0;
+      }
+      .section-label {
+        font-size: 0.7rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 1.5rem;
+      }
 
-  .code {
-    background: var(--text); color: var(--bg);
-    padding: 1.5rem; font-family: var(--font-mono);
-    font-size: 0.8rem; line-height: 1.8; margin: 1.5rem 0;
-    overflow-x: auto;
-  }
-  .code .hl { color: #f5c842; }
-  .code .cm { color: #555; }
+      .code {
+        background: var(--text);
+        color: var(--bg);
+        padding: 1.5rem;
+        font-family: var(--font-mono);
+        font-size: 0.8rem;
+        line-height: 1.8;
+        margin: 1.5rem 0;
+        overflow-x: auto;
+      }
+      .code .hl {
+        color: #f5c842;
+      }
+      .code .cm {
+        color: #555;
+      }
 
-
-  /*
+      /*
   ============================================================
   TECHNIQUE 1: clip-path — cut elements into shapes
   The browser clips pixels outside the path. No SVG needed.
@@ -81,143 +115,196 @@
   ============================================================
   */
 
-  /* DIAGONAL SECTION — most common Awwwards use */
-  .diagonal-section {
-    background: var(--accent2);
-    color: white;
-    padding: 5rem 3rem 7rem;
-    margin: 0 -2rem 4rem;
-    /* polygon: top-left, top-right, bottom-right, bottom-left */
-    clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
-    position: relative;
-  }
+      /* DIAGONAL SECTION — most common Awwwards use */
+      .diagonal-section {
+        background: var(--accent2);
+        color: white;
+        padding: 5rem 3rem 7rem;
+        margin: 0 -2rem 4rem;
+        /* polygon: top-left, top-right, bottom-right, bottom-left */
+        clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+        position: relative;
+      }
 
-  .diagonal-section h2 {
-    font-family: var(--font-display);
-    font-size: clamp(3rem, 7vw, 6rem);
-    line-height: 0.9;
-    letter-spacing: 0.02em;
-    margin-bottom: 1rem;
-  }
+      .diagonal-section h2 {
+        font-family: var(--font-display);
+        font-size: clamp(3rem, 7vw, 6rem);
+        line-height: 0.9;
+        letter-spacing: 0.02em;
+        margin-bottom: 1rem;
+      }
 
-  .diagonal-section p {
-    opacity: 0.6;
-    max-width: 40ch;
-    line-height: 1.7;
-    font-size: 0.95rem;
-  }
+      .diagonal-section p {
+        opacity: 0.6;
+        max-width: 40ch;
+        line-height: 1.7;
+        font-size: 0.95rem;
+      }
 
-  /* ANIMATED CLIP-PATH REVEAL */
-  .clip-reveal {
-    display: flex;
-    gap: 1.5rem;
-    margin-bottom: 4rem;
-    flex-wrap: wrap;
-  }
+      /* ANIMATED CLIP-PATH REVEAL */
+      .clip-reveal {
+        display: flex;
+        gap: 1.5rem;
+        margin-bottom: 4rem;
+        flex-wrap: wrap;
+      }
 
-  .clip-box {
-    width: 180px;
-    height: 180px;
-    background: var(--accent);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: clip-path 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-    position: relative;
-  }
+      .clip-box {
+        width: 180px;
+        height: 180px;
+        background: var(--accent);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: clip-path 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        position: relative;
+      }
 
-  .clip-box span {
-    font-family: var(--font-display);
-    font-size: 1.8rem;
-    color: white;
-    letter-spacing: 0.05em;
-  }
+      .clip-box span {
+        font-family: var(--font-display);
+        font-size: 1.8rem;
+        color: white;
+        letter-spacing: 0.05em;
+      }
 
-  /* Each box has a different shape that animates to a full square on hover */
-  .clip-box--circle {
-    clip-path: circle(40% at 50% 50%);
-  }
-  .clip-box--circle:hover {
-    clip-path: circle(70% at 50% 50%);
-  }
+      /* Each box has a different shape that animates to a full square on hover */
+      .clip-box--circle {
+        clip-path: circle(40% at 50% 50%);
+      }
+      .clip-box--circle:hover {
+        clip-path: circle(70% at 50% 50%);
+      }
 
-  .clip-box--diamond {
-    clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
-  }
-  .clip-box--diamond:hover {
-    clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
-  }
+      .clip-box--diamond {
+        clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+      }
+      .clip-box--diamond:hover {
+        clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+      }
 
-  .clip-box--slash {
-    clip-path: polygon(15% 0%, 100% 0%, 85% 100%, 0% 100%);
-  }
-  .clip-box--slash:hover {
-    clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
-  }
+      .clip-box--slash {
+        clip-path: polygon(15% 0%, 100% 0%, 85% 100%, 0% 100%);
+      }
+      .clip-box--slash:hover {
+        clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+      }
 
-  .clip-box--arrow {
-    clip-path: polygon(0% 20%, 60% 20%, 60% 0%, 100% 50%, 60% 100%, 60% 80%, 0% 80%);
-  }
-  .clip-box--arrow:hover {
-    clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 100%, 0% 100%, 0% 0%);
-  }
+      .clip-box--arrow {
+        clip-path: polygon(
+          0% 20%,
+          60% 20%,
+          60% 0%,
+          100% 50%,
+          60% 100%,
+          60% 80%,
+          0% 80%
+        );
+      }
+      .clip-box--arrow:hover {
+        clip-path: polygon(
+          0% 0%,
+          100% 0%,
+          100% 100%,
+          0% 100%,
+          0% 100%,
+          0% 100%,
+          0% 0%
+        );
+      }
 
-  .clip-hint {
-    font-size: 0.7rem;
-    color: var(--muted);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    margin-bottom: 0.75rem;
-  }
+      .clip-hint {
+        font-size: 0.7rem;
+        color: var(--muted);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        margin-bottom: 0.75rem;
+      }
 
-  /* IMAGE CLIPPING */
-  .clip-image-demo {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
-    margin-bottom: 4rem;
-  }
+      .clip-box--star {
+        clip-path: polygon(
+          50% 0%,
+          61% 35%,
+          98% 35%,
+          68% 57%,
+          85% 100%,
+          50% 70%,
+          15% 100%,
+          32% 57%,
+          2% 35%,
+          39% 35%
+        );
+      }
+      .clip-box--star:hover {
+        clip-path: polygon(
+          50% 0%,
+          100% 0,
+          100% 36%,
+          100% 100%,
+          85% 100%,
+          50% 100%,
+          15% 100%,
+          0 100%,
+          0 36%,
+          0 0
+        );
+      }
 
-  .clip-image-card { position: relative; }
+      /* IMAGE CLIPPING */
+      .clip-image-demo {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 4rem;
+      }
 
-  .fake-image {
-    width: 100%;
-    height: 200px;
-    background: linear-gradient(135deg, var(--accent2) 0%, #2a5a8c 100%);
-    transition: clip-path 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  }
+      .clip-image-card {
+        position: relative;
+      }
 
-  .clip-image-card:nth-child(1) .fake-image {
-    clip-path: inset(0 0 0 0 round 0px 60px 0px 60px);
-  }
-  .clip-image-card:nth-child(1) .fake-image:hover {
-    clip-path: inset(0 0 0 0 round 0px);
-  }
+      .fake-image {
+        width: 100%;
+        height: 200px;
+        background: linear-gradient(135deg, var(--accent2) 0%, #2a5a8c 100%);
+        transition: clip-path 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      }
 
-  .clip-image-card:nth-child(2) .fake-image {
-    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-  }
-  .clip-image-card:nth-child(2) .fake-image:hover {
-    clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 100%, 0% 0%);
-  }
+      .clip-image-card:nth-child(1) .fake-image {
+        clip-path: inset(0 0 0 0 round 0px 60px 0px 60px);
+      }
+      .clip-image-card:nth-child(1) .fake-image:hover {
+        clip-path: inset(0 0 0 0 round 0px);
+      }
 
-  .clip-image-card:nth-child(3) .fake-image {
-    clip-path: ellipse(45% 48% at 50% 50%);
-  }
-  .clip-image-card:nth-child(3) .fake-image:hover {
-    clip-path: ellipse(70% 70% at 50% 50%);
-  }
+      .clip-image-card:nth-child(2) .fake-image {
+        clip-path: polygon(
+          50% 0%,
+          100% 25%,
+          100% 75%,
+          50% 100%,
+          0% 75%,
+          0% 25%
+        );
+      }
+      .clip-image-card:nth-child(2) .fake-image:hover {
+        clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 100%, 0% 0%);
+      }
 
-  .clip-image-card p {
-    font-size: 0.75rem;
-    color: var(--muted);
-    margin-top: 0.75rem;
-    font-family: var(--font-mono);
-  }
+      .clip-image-card:nth-child(3) .fake-image {
+        clip-path: ellipse(45% 48% at 50% 50%);
+      }
+      .clip-image-card:nth-child(3) .fake-image:hover {
+        clip-path: ellipse(70% 70% at 50% 50%);
+      }
 
+      .clip-image-card p {
+        font-size: 0.75rem;
+        color: var(--muted);
+        margin-top: 0.75rem;
+        font-family: var(--font-mono);
+      }
 
-  /*
+      /*
   ============================================================
   TECHNIQUE 2: shape-outside — text wraps around a shape
 
@@ -227,157 +314,204 @@
   IMPORTANT: only works on floated elements.
   ============================================================
   */
-  .shape-outside-demo {
-    margin-bottom: 4rem;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    padding: 2rem;
-  }
+      .shape-outside-demo {
+        margin-bottom: 4rem;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        padding: 2rem;
+      }
 
-  .shape-float {
-    float: left;
-    width: 220px;
-    height: 220px;
-    margin: 0 2rem 1rem 0;
+      .shape-float {
+        float: left;
+        width: 220px;
+        height: 220px;
+        margin: 0 2rem 1rem 0;
 
-    /* The text wraps around this shape */
-    shape-outside: polygon(50% 0%, 100% 100%, 0% 100%);
+        /* The text wraps around this shape */
+        shape-outside: polygon(50% 0%, 100% 100%, 0% 100%);
 
-    /* The element itself is a triangle too */
-    clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
-    background: var(--accent);
-  }
+        /* The element itself is a triangle too */
+        clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+        background: var(--accent);
+      }
 
-  .shape-text {
-    font-family: var(--font-serif);
-    font-size: 1.1rem;
-    font-weight: 300;
-    line-height: 1.8;
-    color: var(--text);
-    font-style: italic;
-  }
+      .shape-text {
+        font-family: var(--font-serif);
+        font-size: 1.1rem;
+        font-weight: 300;
+        line-height: 1.8;
+        color: var(--text);
+        font-style: italic;
+      }
 
+      /* EXERCISE */
+      .exercise {
+        background: var(--text);
+        color: var(--bg);
+        border-top: 3px solid var(--accent);
+        padding: 2rem;
+        margin-top: 3rem;
+      }
 
-  /* EXERCISE */
-  .exercise {
-    background: var(--text); color: var(--bg);
-    border-top: 3px solid var(--accent);
-    padding: 2rem; margin-top: 3rem;
-  }
+      .exercise h3 {
+        font-family: var(--font-display);
+        font-size: 1.8rem;
+        margin-bottom: 1rem;
+        letter-spacing: 0.05em;
+      }
+      .exercise ol {
+        padding-left: 1.5rem;
+        opacity: 0.7;
+        font-size: 0.875rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+      .exercise ol li strong {
+        opacity: 1;
+        color: var(--bg);
+      }
+    </style>
+  </head>
+  <body>
+    <span class="lesson-tag">Phase 1 · Task 03</span>
 
-  .exercise h3 { font-family: var(--font-display); font-size: 1.8rem; margin-bottom: 1rem; letter-spacing: 0.05em; }
-  .exercise ol { padding-left: 1.5rem; opacity: 0.7; font-size: 0.875rem; display: flex; flex-direction: column; gap: 0.75rem; }
-  .exercise ol li strong { opacity: 1; color: var(--bg); }
-</style>
-</head>
-<body>
+    <h1>CLIP-PATH</h1>
+    <p class="intro">
+      Cut elements into any shape. The browser clips everything outside. No
+      Photoshop, no SVG files — pure CSS.
+    </p>
 
-<span class="lesson-tag">Phase 1 · Task 03</span>
+    <!-- DIAGONAL SECTION -->
+    <div class="diagonal-section">
+      <h2>BREAK THE<br />RECTANGLE</h2>
+      <p>
+        clip-path: polygon() lets you escape the box model. This diagonal cut is
+        three coordinates: the bottom-right is pulled up, bottom-left stays.
+      </p>
+    </div>
 
-<h1>CLIP-PATH</h1>
-<p class="intro">Cut elements into any shape. The browser clips everything outside. No Photoshop, no SVG files — pure CSS.</p>
+    <div class="code">
+      <span class="cm"
+        >/* DIAGONAL SECTION — most common Awwwards technique */</span
+      >
+      .section {
+      <span class="hl">clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);</span>
+      <span class="cm">/* top-left top-right bottom-right bottom-left */</span>
+      }
 
-<!-- DIAGONAL SECTION -->
-<div class="diagonal-section">
-  <h2>BREAK THE<br>RECTANGLE</h2>
-  <p>clip-path: polygon() lets you escape the box model. This diagonal cut is three coordinates: the bottom-right is pulled up, bottom-left stays.</p>
-</div>
+      <span class="cm">/* Animate any clip-path with transition */</span>
+      .box { clip-path: circle(<span class="hl">40%</span> at 50% 50%);
+      transition: clip-path 0.5s cubic-bezier(0.16, 1, 0.3, 1); } .box:hover {
+      clip-path: circle(<span class="hl">70%</span> at 50% 50%); }
+      <span class="cm"
+        >/* RULE: both shapes must have the same number of points to animate
+        */</span
+      >
+    </div>
 
-<div class="code">
-<span class="cm">/* DIAGONAL SECTION — most common Awwwards technique */</span>
-.section {
-  <span class="hl">clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);</span>
-  <span class="cm">/*         top-left  top-right  bottom-right  bottom-left */</span>
-}
+    <p class="section-label">
+      Hover to animate — each shape transitions to a square
+    </p>
+    <p class="clip-hint">Try hovering each shape</p>
+    <div class="clip-reveal">
+      <div>
+        <p class="clip-hint">circle()</p>
+        <div class="clip-box clip-box--circle"><span>01</span></div>
+      </div>
+      <div>
+        <p class="clip-hint">polygon() diamond</p>
+        <div class="clip-box clip-box--diamond"><span>02</span></div>
+      </div>
+      <div>
+        <p class="clip-hint">polygon() slash</p>
+        <div class="clip-box clip-box--slash"><span>03</span></div>
+      </div>
+      <div>
+        <p class="clip-hint">polygon() arrow</p>
+        <div class="clip-box clip-box--arrow"><span>04</span></div>
+      </div>
+      <div>
+        <p class="clip-hint">polygon() star</p>
+        <div class="clip-box clip-box--star"><span>05</span></div>
+      </div>
+    </div>
 
-<span class="cm">/* Animate any clip-path with transition */</span>
-.box {
-  clip-path: circle(<span class="hl">40%</span> at 50% 50%);
-  transition: clip-path 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.box:hover {
-  clip-path: circle(<span class="hl">70%</span> at 50% 50%);
-}
-<span class="cm">/* RULE: both shapes must have the same number of points to animate */</span>
-</div>
+    <hr />
 
-<p class="section-label">Hover to animate — each shape transitions to a square</p>
-<p class="clip-hint">Try hovering each shape</p>
-<div class="clip-reveal">
-  <div>
-    <p class="clip-hint">circle()</p>
-    <div class="clip-box clip-box--circle"><span>01</span></div>
-  </div>
-  <div>
-    <p class="clip-hint">polygon() diamond</p>
-    <div class="clip-box clip-box--diamond"><span>02</span></div>
-  </div>
-  <div>
-    <p class="clip-hint">polygon() slash</p>
-    <div class="clip-box clip-box--slash"><span>03</span></div>
-  </div>
-  <div>
-    <p class="clip-hint">polygon() arrow</p>
-    <div class="clip-box clip-box--arrow"><span>04</span></div>
-  </div>
-</div>
+    <p class="section-label">Clipping images — hover each to reveal</p>
+    <div class="clip-image-demo">
+      <div class="clip-image-card">
+        <div class="fake-image"></div>
+        <p>inset() with round</p>
+      </div>
+      <div class="clip-image-card">
+        <div class="fake-image"></div>
+        <p>polygon() hexagon</p>
+      </div>
+      <div class="clip-image-card">
+        <div class="fake-image"></div>
+        <p>ellipse()</p>
+      </div>
+    </div>
 
-<hr>
+    <hr />
 
-<p class="section-label">Clipping images — hover each to reveal</p>
-<div class="clip-image-demo">
-  <div class="clip-image-card">
-    <div class="fake-image"></div>
-    <p>inset() with round</p>
-  </div>
-  <div class="clip-image-card">
-    <div class="fake-image"></div>
-    <p>polygon() hexagon</p>
-  </div>
-  <div class="clip-image-card">
-    <div class="fake-image"></div>
-    <p>ellipse()</p>
-  </div>
-</div>
+    <p class="section-label">
+      Technique 2 — shape-outside (text wraps around a shape)
+    </p>
 
-<hr>
+    <div class="code">
+      <span class="cm">/* ONLY works on floated elements */</span>
+      .triangle { float: left; width: 220px; height: 220px;
+      <span class="hl"
+        >shape-outside: polygon(50% 0%, 100% 100%, 0% 100%);</span
+      >
+      clip-path: polygon(50% 0%, 100% 100%, 0% 100%); }
+      <span class="cm">/* Text flows around the shape-outside boundary */</span>
+    </div>
 
-<p class="section-label">Technique 2 — shape-outside (text wraps around a shape)</p>
+    <div class="shape-outside-demo">
+      <div class="shape-float"></div>
+      <p class="shape-text">
+        Typography and geometry have always been in conversation. When text
+        wraps around a shape, the layout breathes differently — each line finds
+        its own length, guided by the invisible boundary of the form beside it.
+        This is what print designers have known for decades: the white space is
+        not empty. It is shaped. It carries meaning. The triangle commands the
+        eye, and the words orbit around it like planets caught in a field of
+        gravity. Only CSS and a float make this possible. No JavaScript. No
+        image editors. Just coordinates and the browser's rendering engine doing
+        what it was built to do.
+      </p>
+    </div>
 
-<div class="code">
-<span class="cm">/* ONLY works on floated elements */</span>
-.triangle {
-  float: left;
-  width: 220px; height: 220px;
-  <span class="hl">shape-outside: polygon(50% 0%, 100% 100%, 0% 100%);</span>
-  clip-path:     polygon(50% 0%, 100% 100%, 0% 100%);
-}
-<span class="cm">/* Text flows around the shape-outside boundary */</span>
-</div>
-
-<div class="shape-outside-demo">
-  <div class="shape-float"></div>
-  <p class="shape-text">
-    Typography and geometry have always been in conversation.
-    When text wraps around a shape, the layout breathes differently —
-    each line finds its own length, guided by the invisible boundary of the form beside it.
-    This is what print designers have known for decades: the white space is not empty.
-    It is shaped. It carries meaning. The triangle commands the eye,
-    and the words orbit around it like planets caught in a field of gravity.
-    Only CSS and a float make this possible. No JavaScript. No image editors.
-    Just coordinates and the browser's rendering engine doing what it was built to do.
-  </p>
-</div>
-
-<div class="exercise">
-  <h3>YOUR EXERCISE</h3>
-  <ol>
-    <li><strong>Create a new shape:</strong> Add a <code>.clip-box--star</code> using a 10-point polygon (look up the coordinates). Hint: search "CSS star clip-path"</li>
-    <li><strong>Build a reveal animation:</strong> Add a <code>.reveal</code> class that starts as <code>clip-path: inset(0 100% 0 0)</code> and ends as <code>inset(0 0% 0 0)</code> — this is the classic text reveal used everywhere on Awwwards</li>
-    <li><strong>Diagonal hero:</strong> Create a full-width hero section where the image is clipped with a diagonal cut on the right side (<code>polygon(0 0, 90% 0, 75% 100%, 0 100%)</code>)</li>
-    <li><strong>Experiment with shape-outside:</strong> Change the float shape to a circle and see how the text reflows</li>
-  </ol>
-</div>
-
-</body>
+    <div class="exercise">
+      <h3>YOUR EXERCISE</h3>
+      <ol>
+        <li>
+          <strong>Create a new shape:</strong> Add a
+          <code>.clip-box--star</code> using a 10-point polygon (look up the
+          coordinates). Hint: search "CSS star clip-path"
+        </li>
+        <li>
+          <strong>Build a reveal animation:</strong> Add a
+          <code>.reveal</code> class that starts as
+          <code>clip-path: inset(0 100% 0 0)</code> and ends as
+          <code>inset(0 0% 0 0)</code> — this is the classic text reveal used
+          everywhere on Awwwards
+        </li>
+        <li>
+          <strong>Diagonal hero:</strong> Create a full-width hero section where
+          the image is clipped with a diagonal cut on the right side (<code
+            >polygon(0 0, 90% 0, 75% 100%, 0 100%)</code
+          >)
+        </li>
+        <li>
+          <strong>Experiment with shape-outside:</strong> Change the float shape
+          to a circle and see how the text reflows
+        </li>
+      </ol>
+    </div>
+  </body>
 </html>
