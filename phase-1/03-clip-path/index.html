@@ -141,6 +141,19 @@
         font-size: 0.95rem;
       }
 
+      .reveal {
+        clip-path: inset(0 100% 0 0);
+        transition: clip-path 1s cubic-bezier(0.77, 0, 0.175, 1);
+      }
+      div:hover > .reveal {
+        clip-path: inset(0 0% 0 0);
+      }
+      .reveal-wrapper {
+        background: var(--muted);
+        border: 1px solid var(--border);
+        position: relative;
+      }
+
       /* ANIMATED CLIP-PATH REVEAL */
       .clip-reveal {
         display: flex;
@@ -434,6 +447,14 @@
       <div>
         <p class="clip-hint">polygon() star</p>
         <div class="clip-box clip-box--star"><span>05</span></div>
+      </div>
+      <div>
+        <p class="clip-hint">reveal animation</p>
+        <div class="reveal-wrapper">
+          <div class="clip-box reveal">
+            <span>06</span>
+          </div>
+        </div>
       </div>
     </div>
 
